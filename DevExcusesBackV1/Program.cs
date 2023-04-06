@@ -1,7 +1,4 @@
-﻿using System.Runtime.Intrinsics.X86;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-
-var builder = WebApplication.CreateBuilder(args);
+﻿var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https=//aka.ms/aspnetcore/swashbuckle
@@ -21,7 +18,7 @@ app.UseHttpsRedirection();
 
 var excuses = new List<Excuse>()
 {
-    new Excuse() {Http_code = 701,Tag= "Inexcusable",Message=" Meh"},
+    new Excuse() { Http_code = 701,Tag= "Inexcusable",Message=" Meh"},
     new Excuse() { Http_code = 702,Tag= "Inexcusable",Message=" Emacs"},
     new Excuse() { Http_code = 703,Tag= "Inexcusable",Message=" Explosion"},
     new Excuse() { Http_code = 704,Tag= "Inexcusable",Message=" Goto Fail"},
@@ -104,6 +101,16 @@ app.MapGet("/excuse", () =>
     return excuses;
 });
 
+app.MapGet("/excuse/{id}", (int id) =>
+{
+    var excuse = excuses.Find(ex => ex.ID == id);
+    if (excuse == null)
+        return Results.NotFound("On n'a pas cette excuse en stock, désolé");
+
+    return Results.Ok(excuse);
+});
+
+
 
 
 app.Run();
@@ -111,7 +118,16 @@ app.Run();
 
 class Excuse
 {
+    
+    public int ID { get; set; }
     public int Http_code { get; set; }
     public string Tag { get; set; }
     public string Message { get; set; }
+
+    public static int Ids;
+
+    public Excuse()
+    {
+        this.ID = Interlocked.Increment(ref Ids);
+    }
 }
